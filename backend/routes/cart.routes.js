@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const cartController= require('../controllers/cart.controllers')
 const authenticateToken = require('../middlewares/auth.middleware')
-// const {verifyAccessToken}=require('../middlewares/verifyToken')
+
 router.post('/get-cart',authenticateToken,cartController.getCart)
 router.post('/:userId',authenticateToken,cartController.addToCart)
 router.put('/:userId',authenticateToken,cartController.updateCartItem)
