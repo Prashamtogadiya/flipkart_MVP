@@ -1,20 +1,30 @@
-// middleware/authenticateToken.js
 const jwt = require("jsonwebtoken");
 
+/**
+ * Middleware to authenticate JWT access token from Authorization header.
+ */
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader?.split(" ")[1];
 
-  if (!token) return res.status(401).json({ error: "Access token missing" });
+  // Check if Authorization header is present and well-formed
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Access token missing or malformed" });
+  }
 
+  const token = authHeader.split(" ")[1];
+
+  // Verify token using JWT_SECRET
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
-      if (err.name === "TokenExpiredError") {
-        return res.status(401).json({ error: "Access token expired" });
-      } else {
-        return res.status(403).json({ error: "Invalid token" });
-      }
+      const errorMsg =
+        err.name === "TokenExpiredError"
+          ? "Access token expired"
+          : "Invalid access token";
+
+      return res.status(401).json({ error: errorMsg });
     }
+
+    // Attach decoded token data (e.g., userId) to request object
     req.user = decoded;
     next();
   });
