@@ -183,7 +183,8 @@ exports.refreshToken = (req, res) => {
     // Verify token using secret
     jwt.verify(refreshToken, JWT_REFRESH_SECRET, (err, decoded) => {
       if (err) return res.status(403).json({ message: "Expired or invalid token" });
-
+      console.log(decoded);
+      
       // Generate new access token
       const newAccessToken = jwt.sign(
         { id: user.id, username: user.username },

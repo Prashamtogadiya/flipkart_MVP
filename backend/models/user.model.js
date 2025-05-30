@@ -41,7 +41,7 @@ exports.findUserByRefreshToken = (refreshToken, callback) => {
   const sql = "SELECT * FROM users WHERE refresh_token = ?";
   mysqldb.query(sql, [refreshToken], (err, results) => {
     if (err) return callback(err);
-    if (results.length === 0) return callback(null, null);
+    if (results.length === 0) return callback(null, null);    
     callback(null, results[0]);
   });
 };
