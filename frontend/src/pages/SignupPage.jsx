@@ -13,7 +13,7 @@ const SignupPage = () => {
     e.preventDefault();
     const result = await dispatch(signup(form));
     if (result.meta.requestStatus === "fulfilled") {
-      navigate("/dashboard");
+      navigate("/");
     }
   };
 

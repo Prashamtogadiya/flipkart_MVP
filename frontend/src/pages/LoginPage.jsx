@@ -13,13 +13,13 @@ const LoginPage = () => {
     e.preventDefault();
     const result = await dispatch(login(form));
     if (result.meta.requestStatus === 'fulfilled') {
-      navigate('/dashboard');
+      navigate('/');
     }
   };
 
   // If already logged in, redirect to dashboard immediately
   if (token) {
-    navigate('/dashboard');
+    navigate('/');
   }
 
   return (
