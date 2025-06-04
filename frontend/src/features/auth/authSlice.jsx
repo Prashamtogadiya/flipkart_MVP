@@ -37,21 +37,37 @@ const authSlice = createSlice({
         state.error = null;
       })
       // authSlice.js
+      // .addCase(login.fulfilled, (state, action) => {
+      //   state.token = action.payload.accessToken;
+      //   state.refreshToken = action.payload.refreshToken;
+
+      //   // Either use user from response or create from credentials
+      //   state.user = action.payload.user || {
+      //     username: action.meta.arg.username,
+      //   };
+
+      //   state.loading = false;
+      //   localStorage.setItem('user', JSON.stringify(state.user));
+
+      //   localStorage.setItem("accessToken", action.payload.accessToken);
+      //   localStorage.setItem("refreshToken", action.payload.refreshToken);
+      // })
       .addCase(login.fulfilled, (state, action) => {
-        state.token = action.payload.accessToken;
-        state.refreshToken = action.payload.refreshToken;
+  state.token = action.payload.accessToken;
+  state.refreshToken = action.payload.refreshToken;
 
-        // Either use user from response or create from credentials
-        state.user = action.payload.user || {
-          username: action.meta.arg.username,
-        };
+  // Either use user from response or create from credentials
+  state.user = action.payload.user || {
+    username: action.meta.arg.username,
+  };
 
-        state.loading = false;
-        localStorage.setItem('user', JSON.stringify(state.user));
+  state.loading = false;
+  localStorage.setItem('user', JSON.stringify(state.user));
 
-        localStorage.setItem("accessToken", action.payload.accessToken);
-        localStorage.setItem("refreshToken", action.payload.refreshToken);
-      })
+  localStorage.setItem("accessToken", action.payload.accessToken);
+  localStorage.setItem("refreshToken", action.payload.refreshToken);
+})
+
       .addCase(signup.fulfilled, (state, action) => {
         state.token = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;

@@ -7,7 +7,7 @@ const authenticateToken = require('../middlewares/auth.middleware');
 router.post('/get-cart', authenticateToken, cartController.getCart);
 
 // Add a product to a specific user's cart (userId provided in the URL)
-router.post('/:userId', authenticateToken, cartController.addToCart);
+router.post('/:userId', authenticateToken,  cartController.addToCart);
 
 // Update a specific item in a user's cart
 router.put('/:userId', authenticateToken, cartController.updateCartItem);
