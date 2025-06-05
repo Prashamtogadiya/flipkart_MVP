@@ -4,20 +4,8 @@ import { refreshAccessToken, logout } from '../features/auth/authSlice';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000/api',
-  withCredentials: true,
+  withCredentials: true, // Always send cookies
 });
-
-// Attach access token to every request if available
-api.interceptors.request.use(
-  config => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  error => Promise.reject(error)
-);
 
 // Handle 401 responses and try refreshing token
 api.interceptors.response.use(
@@ -30,8 +18,7 @@ api.interceptors.response.use(
       try {
         const refreshResult = await store.dispatch(refreshAccessToken());
         if (refreshResult.meta.requestStatus === 'fulfilled') {
-          const newAccessToken = refreshResult.payload.accessToken;
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          // No need to update Authorization header, cookie will be sent automatically
           return api(originalRequest);
         }
       } catch {

@@ -1,13 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authAPI from "./authAPI";
 
-const accessTokenFromStorage = localStorage.getItem("accessToken");
-const refreshTokenFromStorage = localStorage.getItem("refreshToken");
-
+// Only user is stored in localStorage, not tokens
 const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
-  token: accessTokenFromStorage || null,
-  refreshToken: refreshTokenFromStorage || null,
+  token: null,
+  refreshToken: null,
   loading: false,
   error: null,
 };
@@ -25,9 +23,8 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setCredentials: (state, action) => {
-      state.user = action.payload.user;      
-      state.token = action.payload.accessToken;
-      state.refreshToken = action.payload.refreshToken;
+      state.user = action.payload.user;
+      // Tokens are not stored in state anymore
     },
   },
   extraReducers: (builder) => {
@@ -36,45 +33,18 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      // authSlice.js
-      // .addCase(login.fulfilled, (state, action) => {
-      //   state.token = action.payload.accessToken;
-      //   state.refreshToken = action.payload.refreshToken;
-
-      //   // Either use user from response or create from credentials
-      //   state.user = action.payload.user || {
-      //     username: action.meta.arg.username,
-      //   };
-
-      //   state.loading = false;
-      //   localStorage.setItem('user', JSON.stringify(state.user));
-
-      //   localStorage.setItem("accessToken", action.payload.accessToken);
-      //   localStorage.setItem("refreshToken", action.payload.refreshToken);
-      // })
       .addCase(login.fulfilled, (state, action) => {
-  state.token = action.payload.accessToken;
-  state.refreshToken = action.payload.refreshToken;
-
-  // Either use user from response or create from credentials
-  state.user = action.payload.user || {
-    username: action.meta.arg.username,
-  };
-
-  state.loading = false;
-  localStorage.setItem('user', JSON.stringify(state.user));
-
-  localStorage.setItem("accessToken", action.payload.accessToken);
-  localStorage.setItem("refreshToken", action.payload.refreshToken);
-})
-
+        // Tokens are handled by cookies, just set user
+        state.user = action.payload.user || {
+          username: action.meta.arg.username,
+        };
+        state.loading = false;
+        localStorage.setItem('user', JSON.stringify(state.user));
+      })
       .addCase(signup.fulfilled, (state, action) => {
-        state.token = action.payload.accessToken;
-        state.refreshToken = action.payload.refreshToken;
         state.user = action.payload.user || null;
         state.loading = false;
-        localStorage.setItem("accessToken", action.payload.accessToken);
-        localStorage.setItem("refreshToken", action.payload.refreshToken);
+        localStorage.setItem('user', JSON.stringify(state.user));
       })
       .addCase(login.rejected, signup.rejected, (state, action) => {
         state.loading = false;
@@ -84,19 +54,16 @@ const authSlice = createSlice({
         state.user = null;
         state.token = null;
         state.refreshToken = null;
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        localStorage.removeItem('user');
       })
-      .addCase(refreshAccessToken.fulfilled, (state, action) => {
-        state.token = action.payload.accessToken;
-        localStorage.setItem("accessToken", action.payload.accessToken);
+      .addCase(refreshAccessToken.fulfilled, () => {
+        // No need to update token in state, handled by cookie
       })
       .addCase(refreshAccessToken.rejected, (state) => {
         state.token = null;
         state.refreshToken = null;
         state.user = null;
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        localStorage.removeItem('user');
       });
   },
 });

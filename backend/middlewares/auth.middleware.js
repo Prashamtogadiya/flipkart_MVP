@@ -4,14 +4,18 @@ const jwt = require("jsonwebtoken");
  * Middleware to authenticate JWT access token from Authorization header.
  */
 function authenticateToken(req, res, next) {
+  let token;
   const authHeader = req.headers["authorization"];
 
-  // Check if Authorization header is present and well-formed
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Access token missing or malformed" });
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (req.cookies && req.cookies.accessToken) {
+    token = req.cookies.accessToken;
   }
 
-  const token = authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ error: "Access token missing or malformed" });
+  }
 
   // Verify token using JWT_SECRET
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {

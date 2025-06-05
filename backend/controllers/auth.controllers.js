@@ -75,13 +75,26 @@ exports.login = (req, res) => {
       // Store refresh token in DB
       userModel.storeRefreshToken(user.id, refreshToken, (err) => {
         if (err) return res.status(500).json({ message: "Token save failed" });
+
+        // Set tokens as HTTP-only cookies
+        res.cookie('accessToken', accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 15 * 60 * 1000, // 15 minutes
+        });
+        res.cookie('refreshToken', refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
         res.json({
           user: {
-            id: user.id, // ✅ Add this line
+            id: user.id,
             username: user.username,
-          },
-          accessToken,
-          refreshToken,
+          }
         });
       });
     });
@@ -179,6 +192,10 @@ exports.logout = (req, res) => {
   // Delete refresh token from DB
   userModel.deleteRefreshToken(userId, (err) => {
     if (err) return res.status(500).json({ message: "Logout failed" });
+
+    // Clear cookies
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
     res.json({ message: "Logged out successfully" });
   });
 };
@@ -193,7 +210,8 @@ exports.protected = (req, res) => {
 
 // Refresh access token using refresh token
 exports.refreshToken = (req, res) => {
-  const { refreshToken } = req.body;
+  // Get refreshToken from cookie if not in body
+  const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
 
   // Check if refresh token is provided
   if (!refreshToken)
@@ -216,6 +234,14 @@ exports.refreshToken = (req, res) => {
         JWT_SECRET,
         { expiresIn: "15m" }
       );
+
+      // Set new access token as cookie
+      res.cookie('accessToken', newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 15 * 60 * 1000,
+      });
 
       res.json({ accessToken: newAccessToken });
     });

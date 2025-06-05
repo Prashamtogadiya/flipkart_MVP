@@ -1,29 +1,21 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../api/axiosInstance";
 import { useSelector } from "react-redux";
 
 const CartPage = () => {
   const user = useSelector((state) => state.auth.user);
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("accessToken"); // or sessionStorage, depending on where you store it
 
   useEffect(() => {
     const fetchCart = async () => {
       try {
         const res = await axios.post(
-          "http://localhost:3000/api/cart/get-cart",
+          "/cart/get-cart",
           {
             userId: user.id,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
           }
         );
-        console.log(res.data.items);
-
         setCartItems(res.data.items);
       } catch (err) {
         console.error("Failed to fetch cart:", err);
@@ -35,7 +27,7 @@ const CartPage = () => {
     if (user?.id) {
       fetchCart();
     }
-  }, [user?.id, token]);
+  }, [user?.id]);
 
   if (!user?.id) {
     return (
