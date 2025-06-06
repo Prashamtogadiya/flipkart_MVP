@@ -11,6 +11,7 @@ import "./index.css";
 import HeroSection from "./pages/HeroSection";
 import ProductDetail from "./pages/ProductDetail";
 import CartPage from "./pages/CartPage";
+import MyOrdersPage from "./pages/MyOrdersPage";
 
 const App = () => (
   <BrowserRouter>
@@ -31,7 +32,7 @@ const App = () => (
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/cart" element={<CartPage />} />
-
+        <Route path="/orders" element={<MyOrdersPage />} /> 
 
         {/* Add more nested routes here */}
       </Route>

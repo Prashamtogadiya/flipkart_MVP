@@ -3,20 +3,25 @@ import { useLocation, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { addToCart } from "../features/cart/cartSlice";
-
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
+// ProductDetail shows details for a single product and allows adding to cart
 const ProductDetail = () => {
+  // Get product ID from URL params
   const { id } = useParams();
+  // Get product data from navigation state if available
   const location = useLocation();
   const dispatch = useDispatch();
+  // Get current user from Redux store
   const user = useSelector(state => state.auth.user);
 
+  // Local state for product details, loading, dialog, and quantity
   const [product, setProduct] = useState(location.state?.product || null);
   const [loading, setLoading] = useState(!product);
   const [openDialog, setOpenDialog] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
+  // Fetch product details from backend if not provided in navigation state
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -32,6 +37,7 @@ const ProductDetail = () => {
     if (!product) fetchProduct();
   }, [id, product]);
 
+  // Handle "Add to Cart" button click
   const handleAddToCart = () => {
     if (!user?.id) {
       alert("Please login first.");
@@ -41,6 +47,7 @@ const ProductDetail = () => {
     setOpenDialog(true);
   };
 
+  // Confirm adding product to cart
   const confirmAddToCart = () => {
     dispatch(
       addToCart({
@@ -52,9 +59,11 @@ const ProductDetail = () => {
     setOpenDialog(false);
   };
 
+  // Increment and decrement quantity handlers
   const incrementQuantity = () => setQuantity(q => q + 1);
   const decrementQuantity = () => setQuantity(q => (q > 1 ? q - 1 : 1));
 
+  // Show loading spinner while fetching product
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -63,6 +72,7 @@ const ProductDetail = () => {
     );
   }
 
+  // Show message if product not found
   if (!product) {
     return (
       <div className="text-center py-12">
@@ -75,17 +85,20 @@ const ProductDetail = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">
+        {/* Product image */}
         <img
           src={product.imageUrl[0]}
           alt={product.name}
           className="w-full md:w-1/2 h-96 object-contain bg-white p-4 border"
         />
         <div>
+          {/* Product details */}
           <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
           <p className="text-xl text-gray-800 font-semibold">${product.price}</p>
           <p className="text-gray-600 mt-2">{product.description}</p>
           <p className="text-sm text-gray-500 mt-4">Category: {product.category}</p>
 
+          {/* Add to Cart button */}
           <button
             onClick={handleAddToCart}
             className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
@@ -95,6 +108,7 @@ const ProductDetail = () => {
         </div>
       </div>
 
+      {/* Dialog for confirming add to cart and selecting quantity */}
       <AlertDialog.Root open={openDialog} onOpenChange={setOpenDialog}>
         <AlertDialog.Overlay className="fixed inset-0 bg-black opacity-30" />
         <AlertDialog.Content className="fixed top-1/2 left-1/2 max-w-md p-6 bg-white rounded-md shadow-lg -translate-x-1/2 -translate-y-1/2">
@@ -133,6 +147,7 @@ const ProductDetail = () => {
             </button>
           </div>
 
+          {/* Dialog action buttons */}
           <div className="flex gap-3 justify-end">
             <AlertDialog.Cancel asChild>
               <button

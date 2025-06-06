@@ -29,7 +29,7 @@ const CategoryNavbar = () => {
       icon: "https://cdn-icons-png.flaticon.com/512/2786/2786392.png",
     },
     {
-      name: "Beauty, Toys & More",
+      name: "Footwear",
       icon: "https://cdn-icons-png.flaticon.com/512/3081/3081829.png",
     },
     {

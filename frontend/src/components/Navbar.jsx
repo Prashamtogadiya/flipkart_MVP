@@ -177,7 +177,6 @@ const Navbar = () => {
           </Link>
         </div>
       </nav>
-      {/* <CategoryNavbar /> */}
     </>
   );
 };
