@@ -41,7 +41,7 @@ const CategoryNavbar = () => {
   return (
     <div className="bg-white shadow-sm sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center space-x-8 overflow-x-auto py-3 hide-scrollbar">
+        <div className="flex items-center space-x-22 overflow-x-auto py-3 hide-scrollbar">
           {categories.map((category, index) => (
             <Link
               key={index}

@@ -30,18 +30,10 @@ const SearchBar = () => {
   };
 
   return (
-    <div className="flex-1 mx-8 max-w-2xl relative">
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="Search for products, brands and more"
-          className="w-full px-4 py-2 rounded-sm text-black outline-none shadow-sm"
-          value={search}
-          onChange={handleSearchChange}
-          onFocus={() => search && setShowDropdown(true)}
-          onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-        />
-        <button className="absolute right-0 top-0 h-full px-4 bg-white text-[#2874f0]">
+    <div className="flex-1 mx-8 max-w-2xl relative ">
+      <div className="relative ">
+        {/* Search button first */}
+        <button className="absolute left-0 top-0 h-full px-3 bg-white text-[#2874f0] rounded-sm z-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -57,6 +49,16 @@ const SearchBar = () => {
             />
           </svg>
         </button>
+        {/* Input shifted right to make space for button */}
+        <input
+          type="text"
+          placeholder="Search for products, brands and more"
+          className="w-full pl-12 pr-4 py-2 rounded-sm text-black outline-none shadow-sm bg-amber-50"
+          value={search}
+          onChange={handleSearchChange}
+          onFocus={() => search && setShowDropdown(true)}
+          onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+        />
       </div>
       {/* Search Results Dropdown */}
       {showDropdown && results.length > 0 && (
