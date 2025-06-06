@@ -83,3 +83,22 @@ exports.updateProductById = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Prefix search by product name or category
+exports.searchProductsByPrefix = async (req, res) => {
+  try {
+    const q = req.query.q;
+    if (!q) return res.json([]);
+    // Case-insensitive prefix search on name or category
+    const regex = new RegExp('^' + q, 'i');
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: regex } },
+        { category: { $regex: regex } }
+      ]
+    });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

@@ -24,7 +24,6 @@ const authSlice = createSlice({
   reducers: {
     setCredentials: (state, action) => {
       state.user = action.payload.user;
-      // Tokens are not stored in state anymore
     },
   },
   extraReducers: (builder) => {
@@ -34,20 +33,35 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
-        // Tokens are handled by cookies, just set user
-        state.user = action.payload.user || {
-          username: action.meta.arg.username,
-        };
+        // Only set user if backend returns user and no error
+        if (action.payload && action.payload.user && !action.payload.error && !action.payload.errors) {
+          state.user = action.payload.user;
+          localStorage.setItem('user', JSON.stringify(state.user));
+          state.error = null;
+        } else {
+          state.user = null;
+          localStorage.removeItem('user');
+          state.error = action.payload?.error || (action.payload?.errors && action.payload.errors[0]) || "Login failed";
+        }
         state.loading = false;
-        localStorage.setItem('user', JSON.stringify(state.user));
       })
       .addCase(signup.fulfilled, (state, action) => {
-        state.user = action.payload.user || null;
+        // Only set user if backend returns user and no error
+        if (action.payload && action.payload.user && !action.payload.error && !action.payload.errors) {
+          state.user = action.payload.user;
+          localStorage.setItem('user', JSON.stringify(state.user));
+          state.error = null;
+        } else {
+          state.user = null;
+          localStorage.removeItem('user');
+          state.error = action.payload?.error || (action.payload?.errors && action.payload.errors[0]) || "Signup failed";
+        }
         state.loading = false;
-        localStorage.setItem('user', JSON.stringify(state.user));
       })
       .addCase(login.rejected, signup.rejected, (state, action) => {
         state.loading = false;
+        state.user = null;
+        localStorage.removeItem('user');
         state.error = action.error.message;
       })
       .addCase(logout.fulfilled, (state) => {
@@ -56,8 +70,12 @@ const authSlice = createSlice({
         state.refreshToken = null;
         localStorage.removeItem('user');
       })
-      .addCase(refreshAccessToken.fulfilled, () => {
-        // No need to update token in state, handled by cookie
+      .addCase(refreshAccessToken.fulfilled, (state, action) => {
+        // If backend returns user, update user in state/localStorage
+        if (action.payload && action.payload.user) {
+          state.user = action.payload.user;
+          localStorage.setItem('user', JSON.stringify(state.user));
+        }
       })
       .addCase(refreshAccessToken.rejected, (state) => {
         state.token = null;

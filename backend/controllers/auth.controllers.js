@@ -22,7 +22,7 @@ exports.signup = (req, res) => {
     if (err) return res.status(500).json({ message: "Error hashing password" });
 
     // Store user in database
-    userModel.createUser(username, hashedPassword, (err) => {
+    userModel.createUser(username, hashedPassword, (err, user) => {
       if (err) {
         // Check if username already exists
         if (err.code === "ER_DUP_ENTRY") {
@@ -30,7 +30,8 @@ exports.signup = (req, res) => {
         }
         return res.status(500).json({ message: "Database error" });
       }
-      res.status(201).json({ message: "User registered" });
+      // Respond with created user
+      res.status(201).json({ user: { id: user.id, username: user.username } });
     });
   });
 };

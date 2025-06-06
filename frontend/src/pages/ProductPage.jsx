@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
+import ProductCard from "../components/ProductCard";
 
 // ProductPage displays a list of products, optionally filtered by category
 const ProductPage = () => {
@@ -14,6 +15,7 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
   // Price range state for rc-slider
   const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [sortOrder, setSortOrder] = useState(""); // "" | "asc" | "desc"
 
   // Get current location and navigation helpers
   const location = useLocation();
@@ -39,7 +41,7 @@ const ProductPage = () => {
     fetchProducts();
   }, []);
 
-  // Filter products by selected category and price range
+  // Filter and sort products by selected category and price range
   useEffect(() => {
     let filtered = allProducts;
     if (selectedCategory) {
@@ -50,8 +52,14 @@ const ProductPage = () => {
     filtered = filtered.filter(
       (product) => product.price >= priceRange[0] && product.price <= priceRange[1]
     );
+    // Sort by price if sortOrder is set
+    if (sortOrder === "asc") {
+      filtered = [...filtered].sort((a, b) => a.price - b.price);
+    } else if (sortOrder === "desc") {
+      filtered = [...filtered].sort((a, b) => b.price - a.price);
+    }
     setDisplayedProducts(filtered);
-  }, [selectedCategory, allProducts, priceRange]);
+  }, [selectedCategory, allProducts, priceRange, sortOrder]);
 
   // Remove category filter and show all products
   const clearCategoryFilter = () => {
@@ -78,6 +86,19 @@ const ProductPage = () => {
             />
             <span>${priceRange[1]}</span>
           </div>
+        </div>
+        {/* Sort by price dropdown */}
+        <div className="flex items-center gap-2 mt-4 md:mt-0">
+          <label className="font-semibold">Sort by:</label>
+          <select
+            value={sortOrder}
+            onChange={e => setSortOrder(e.target.value)}
+            className="border rounded px-2 py-1"
+          >
+            <option value="">Default</option>
+            <option value="asc">Price: Low to High</option>
+            <option value="desc">Price: High to Low</option>
+          </select>
         </div>
         {/* Show category heading and clear filter button if category is selected */}
         {selectedCategory ? (
@@ -122,34 +143,6 @@ const ProductPage = () => {
           ))}
         </div>
       )}
-    </div>
-  );
-};
-
-// ProductCard displays a single product in the grid
-const ProductCard = ({ product }) => {
-  const navigate = useNavigate();
-
-  // Navigate to product detail page on click
-  const handleClick = () => {
-    navigate(`/products/${product._id}`, { state: { product } });
-  };
-
-  return (
-    <div
-      onClick={handleClick}
-      className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-    >
-      <img
-        src={product.imageUrl[0]}
-        alt={product.name}
-        className="w-full h-48 object-contain bg-white p-4"
-      />
-      <div className="p-4">
-        <h3 className="font-medium text-lg mb-1">{product.name}</h3>
-        <p className="text-gray-600 font-bold">${product.price}</p>
-        <p className="text-sm text-gray-500 mt-1">{product.category}</p>
-      </div>
     </div>
   );
 };

@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 const LoginPage = () => {
   // Local state for form fields
   const [form, setForm] = useState({ username: "", password: "" });
+  const [formError, setFormError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // Get loading, error, and user info from Redux store
@@ -16,10 +17,38 @@ const LoginPage = () => {
   // Handle form submission for login
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await dispatch(login(form));
-    if (result.meta.requestStatus === "fulfilled") {
-      navigate("/");
+    setFormError("");
+    // Frontend validation: username required, password required, username min 3, password min 6
+    if (!form.username || !form.password) {
+      setFormError("Username and password are required.");
+      return;
     }
+    if (form.username.length < 3) {
+      setFormError("Username must be at least 3 characters.");
+      return;
+    }
+    if (form.password.length < 6) {
+      setFormError("Password must be at least 6 characters.");
+      return;
+    }
+    const result = await dispatch(login(form));
+    // Show backend error details if present
+    if (
+      result.meta.requestStatus !== "fulfilled" ||
+      !result.payload ||
+      !result.payload.user
+    ) {
+      // Prefer backend error message if available
+      if (result.payload?.error) {
+        setFormError(result.payload.error);
+      } else if (result.payload?.errors && result.payload.errors.length > 0) {
+        setFormError(result.payload.errors[0]);
+      } else {
+        setFormError("Login failed. Please check your credentials.");
+      }
+      return;
+    }
+    navigate("/");
   };
 
   // If already logged in, redirect to dashboard
@@ -57,8 +86,10 @@ const LoginPage = () => {
         >
           {loading ? "Loading..." : "Login"}
         </button>
-        {/* Show error message if login fails */}
-        {error && <p className="text-red-500 text-sm mt-3 text-center">{error}</p>}
+        {/* Show frontend/backend validation error */}
+        {formError && <p className="text-red-500 text-sm mt-3 text-center">{formError}</p>}
+        {/* Show backend error message if login fails (fallback) */}
+        {error && !formError && <p className="text-red-500 text-sm mt-3 text-center">{error}</p>}
         {/* Link to signup page */}
         <p className="text-center mt-4 text-sm">
           Don’t have an account?{" "}

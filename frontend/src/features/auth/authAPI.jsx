@@ -12,15 +12,16 @@ const login = async (credentials) => {
 
   const data = await res.json();
 
-  // If backend doesn't return user data, create it from credentials
-  if (!data.user) {
-    return {
-      ...data,
-      user: { username: credentials.username }
-    };
+  // Only return user if login is successful (status 200)
+  if (res.ok && data.user) {
+    return data;
   }
 
-  return data;
+  // If backend returns error or validation errors, do NOT return user
+  return {
+    ...data,
+    user: null
+  };
 };
 
 const signup = async (credentials) => {
@@ -30,7 +31,42 @@ const signup = async (credentials) => {
     body: JSON.stringify(credentials),
     credentials: 'include',
   });
-  return await res.json();
+
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
+
+  // If backend returns 409 or any error, do NOT return user
+  if (!res.ok) {
+    return {
+      ...data,
+      user: null,
+      error: data?.error || data?.message || "Signup failed",
+    };
+  }
+
+  // After signup, immediately call /login to get tokens and user in cookie/session
+  const loginRes = await fetch(`${baseUrl}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials),
+    credentials: 'include',
+  });
+  let loginData;
+  try {
+    loginData = await loginRes.json();
+  } catch {
+    loginData = {};
+  }
+  if (loginRes.ok && loginData.user) {
+    return loginData;
+  }
+
+  // If login fails after signup, fallback to original signup data
+  return data;
 };
 
 const logout = async () => {

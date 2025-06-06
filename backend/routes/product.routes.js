@@ -9,6 +9,9 @@ const { validateBody } = require('../middlewares/validate.middleware');
 // Route to get all products, no login needed
 router.get('/', productController.getAllProducts);
 
+// Prefix search by product name or category (must be before :id)
+router.get('/search', productController.searchProductsByPrefix);
+
 // Route to get a single product by its id, no login needed
 router.get('/:id', productController.getProductById);
 

@@ -13,17 +13,18 @@ const MyOrdersPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef();
 
-  // Fetch orders for the current page (simulate backend pagination)
+  // Fetch orders for the current page from backend
   const fetchOrders = useCallback(async (pageNum) => {
     setLoading(true);
     setError("");
     try {
-      // Simulate backend pagination by fetching all and slicing here
-      const res = await axios.post("/orders/user", { userId: user.id });
-      const allOrders = res.data.orders || [];
-      const newOrders = allOrders.slice((pageNum - 1) * PAGE_SIZE, pageNum * PAGE_SIZE);
+      const res = await axios.post(
+        `/orders/user?page=${pageNum}&limit=${PAGE_SIZE}`,
+        { userId: user.id }
+      );
+      const newOrders = res.data.orders || [];
       setOrders((prev) => (pageNum === 1 ? newOrders : [...prev, ...newOrders]));
-      setHasMore(allOrders.length > pageNum * PAGE_SIZE);
+      setHasMore(res.data.hasMore);
     } catch (err) {
       setError(
         err?.response?.data?.error ||
@@ -54,9 +55,10 @@ const MyOrdersPage = () => {
       },
       { threshold: 1 }
     );
-    if (loaderRef.current) observer.observe(loaderRef.current);
+    const currentLoader = loaderRef.current;
+    if (currentLoader) observer.observe(currentLoader);
     return () => {
-      if (loaderRef.current) observer.unobserve(loaderRef.current);
+      if (currentLoader) observer.unobserve(currentLoader);
     };
   }, [hasMore, loading]);
 
@@ -142,11 +144,11 @@ const MyOrdersPage = () => {
           <div className="animate-spin h-8 w-8 border-t-2 border-b-2 border-blue-600 rounded-full"></div>
         </div>
       )}
-      {loading && !orders.length && (
+      {/* {loading && !orders.length && (
         <div className="flex justify-center mt-8">
           <div className="animate-spin h-8 w-8 border-t-2 border-b-2 border-blue-600 rounded-full"></div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

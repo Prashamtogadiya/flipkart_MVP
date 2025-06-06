@@ -60,26 +60,37 @@ exports.placeOrderFromCart = async (req, res) => {
 };
 
 /**
- * Controller to get all orders placed by a specific user
+ * Controller to get all orders placed by a specific user (with pagination)
  */
 exports.getOrderByUser = async (req, res) => {
   try {
-    // Extract userId from request body
     const { userId } = req.body;
+    // Get page and limit from query params, default page=1, limit=5
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+
     if (!userId) {
       return res.status(400).json({ error: "userId is required" });
     }
 
-    // Find all orders for the given user and populate product details
+    // Count total orders for pagination
+    const total = await Order.countDocuments({ userId: Number(userId) });
+
+    // Find orders for the given user, paginated and sorted by createdAt desc
     const orders = await Order.find({ userId: Number(userId) })
       .populate("items.product")
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
       .exec();
 
-    if (!orders.length) {
-      return res.status(404).json({ error: "No orders found for this user" });
-    }
-
-    res.json({ orders });
+    res.json({
+      orders,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+      hasMore: page * limit < total,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
