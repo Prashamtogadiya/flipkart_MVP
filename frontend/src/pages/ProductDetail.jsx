@@ -5,23 +5,22 @@ import axios from "axios";
 import { addToCart } from "../features/cart/cartSlice";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
-// ProductDetail shows details for a single product and allows adding to cart
+// Flipkart-like Product Detail Page
 const ProductDetail = () => {
-  // Get product ID from URL params
+  // Get product ID from URL params and navigation state
   const { id } = useParams();
-  // Get product data from navigation state if available
   const location = useLocation();
   const dispatch = useDispatch();
-  // Get current user from Redux store
   const user = useSelector(state => state.auth.user);
 
-  // Local state for product details, loading, dialog, and quantity
+  // Local state for product, loading, dialog, quantity, and selected image
   const [product, setProduct] = useState(location.state?.product || null);
   const [loading, setLoading] = useState(!product);
   const [openDialog, setOpenDialog] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
 
-  // Fetch product details from backend if not provided in navigation state
+  // Fetch product details from backend if not passed via navigation state
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -33,21 +32,20 @@ const ProductDetail = () => {
         setLoading(false);
       }
     };
-
     if (!product) fetchProduct();
   }, [id, product]);
 
-  // Handle "Add to Cart" button click
+  // Handler for Add to Cart/Buy Now button
   const handleAddToCart = () => {
     if (!user?.id) {
       alert("Please login first.");
       return;
     }
-    setQuantity(1); // reset quantity each time dialog opens
+    setQuantity(1);
     setOpenDialog(true);
   };
 
-  // Confirm adding product to cart
+  // Confirm adding product to cart with selected quantity
   const confirmAddToCart = () => {
     dispatch(
       addToCart({
@@ -59,7 +57,7 @@ const ProductDetail = () => {
     setOpenDialog(false);
   };
 
-  // Increment and decrement quantity handlers
+  // Increment/decrement quantity for cart dialog
   const incrementQuantity = () => setQuantity(q => q + 1);
   const decrementQuantity = () => setQuantity(q => (q > 1 ? q - 1 : 1));
 
@@ -72,7 +70,7 @@ const ProductDetail = () => {
     );
   }
 
-  // Show message if product not found
+  // Show not found message if product doesn't exist
   if (!product) {
     return (
       <div className="text-center py-12">
@@ -83,31 +81,107 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Product image */}
-        <img
-          src={product.imageUrl[0]}
-          alt={product.name}
-          className="w-full md:w-1/2 h-96 object-contain bg-white p-4 border"
-        />
-        <div>
-          {/* Product details */}
-          <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-          <p className="text-xl text-gray-800 font-semibold">${product.price}</p>
-          <p className="text-gray-600 mt-2">{product.description}</p>
-          <p className="text-sm text-gray-500 mt-4">Category: {product.category}</p>
-
-          {/* Add to Cart button */}
-          <button
-            onClick={handleAddToCart}
-            className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
-          >
-            Add to Cart
-          </button>
+    <div className="bg-[#f1f3f6] min-h-screen py-8">
+      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow flex flex-col md:flex-row p-6 gap-8">
+        {/* Left: Product Images & Actions */}
+        <div className="flex flex-row md:w-2/5 w-full items-start">
+          {/* Thumbnails (vertical on left) */}
+          {product.imageUrl?.length > 1 && (
+            <div className="flex flex-col gap-2 mr-4">
+              {product.imageUrl.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt={`thumb-${idx}`}
+                  className={`w-12 h-12 object-contain border rounded cursor-pointer p-1 bg-white ${
+                    selectedImage === idx
+                      ? "border-blue-500 ring-2 ring-blue-400"
+                      : "border-gray-200"
+                  }`}
+                  onClick={() => setSelectedImage(idx)}
+                />
+              ))}
+            </div>
+          )}
+          {/* Main Image and Actions */}
+          <div className="flex flex-col items-center">
+            {/* Main product image */}
+            <div className="bg-white border rounded flex items-center justify-center w-80 h-80 mb-4">
+              <img
+                src={product.imageUrl[selectedImage] || product.imageUrl[0]}
+                alt={product.name}
+                className="object-contain max-h-72 max-w-full"
+              />
+            </div>
+            {/* Add to Cart and Buy Now buttons below image */}
+            <div className="flex gap-4 w-80">
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded text-lg shadow transition"
+              >
+                Add to Cart
+              </button>
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded text-lg shadow transition"
+              >
+                Buy Now
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* Right: Product Details */}
+        <div className="flex-1">
+          {/* Product name */}
+          <h1 className="text-2xl md:text-3xl font-semibold mb-2">{product.name}</h1>
+          {/* Ratings, reviews, and assurance badge */}
+          <div className="flex items-center gap-4 mb-2">
+            <span className="bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">4.3 ★</span>
+            <span className="text-gray-500 text-sm">1,234 Ratings & 234 Reviews</span>
+            <img
+              src="https://static-assets-web.flixcart.com/www/linchpin/fk-cp-zion/img/fa_62673a.png"
+              alt="Assured"
+              className="h-6"
+            />
+          </div>
+          {/* Price, discount, and original price */}
+          <div className="flex items-end gap-4 mb-4">
+            <span className="text-3xl font-bold text-[#388e3c]">${product.price}</span>
+            <span className="text-gray-500 line-through text-lg">${(product.price * 1.2).toFixed(2)}</span>
+            <span className="text-green-700 font-semibold text-lg">20% off</span>
+          </div>
+          {/* Offers section */}
+          <div className="mb-4">
+            <span className="font-semibold">Available Offers</span>
+            <ul className="list-disc ml-6 text-sm text-gray-700 mt-1">
+              <li>Bank Offer: 10% off on selected cards</li>
+              <li>Special Price: Get extra 5% off (price inclusive)</li>
+              <li>Free Delivery</li>
+              <li>No Cost EMI available</li>
+            </ul>
+          </div>
+          {/* Product description */}
+          <div className="mb-4">
+            <span className="font-semibold">Description:</span>
+            <p className="text-gray-700 mt-1">{product.description}</p>
+          </div>
+          {/* Category */}
+          <div className="mb-4">
+            <span className="font-semibold">Category:</span>
+            <span className="ml-2 text-gray-600">{product.category}</span>
+          </div>
+          {/* Warranty */}
+          <div className="mb-4">
+            <span className="font-semibold">Warranty:</span>
+            <span className="ml-2 text-gray-600">1 Year Brand Warranty</span>
+          </div>
+          {/* Delivery info */}
+          <div className="mb-4">
+            <span className="font-semibold">Delivery:</span>
+            <span className="ml-2 text-gray-600">Free, within 3-5 days</span>
+          </div>
         </div>
       </div>
-
       {/* Dialog for confirming add to cart and selecting quantity */}
       <AlertDialog.Root open={openDialog} onOpenChange={setOpenDialog}>
         <AlertDialog.Overlay className="fixed inset-0 bg-black opacity-30" />
@@ -118,7 +192,6 @@ const ProductDetail = () => {
           <AlertDialog.Description className="mb-4">
             Select quantity and confirm adding this item to your cart.
           </AlertDialog.Description>
-
           {/* Quantity Selector */}
           <div className="flex items-center gap-4 mb-6">
             <button
@@ -146,7 +219,6 @@ const ProductDetail = () => {
               +
             </button>
           </div>
-
           {/* Dialog action buttons */}
           <div className="flex gap-3 justify-end">
             <AlertDialog.Cancel asChild>
