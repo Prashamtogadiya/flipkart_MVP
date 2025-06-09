@@ -82,7 +82,7 @@ const ProductDetail = () => {
 
   return (
     <div className="bg-[#f1f3f6] min-h-screen py-8">
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow flex flex-col md:flex-row p-6 gap-8">
+      <div className="max-w-7xl mx-auto bg-white rounded-lg shadow flex flex-col md:flex-row p-6 gap-8">
         {/* Left: Product Images & Actions */}
         <div className="flex flex-row md:w-2/5 w-full items-start">
           {/* Thumbnails (vertical on left) */}
@@ -106,15 +106,15 @@ const ProductDetail = () => {
           {/* Main Image and Actions */}
           <div className="flex flex-col items-center">
             {/* Main product image */}
-            <div className="bg-white border rounded flex items-center justify-center w-80 h-80 mb-4">
+            <div className="bg-white border rounded flex items-center justify-center w-100 h-110 mb-4">
               <img
                 src={product.imageUrl[selectedImage] || product.imageUrl[0]}
                 alt={product.name}
-                className="object-contain max-h-72 max-w-full"
+                className="object-contain max-h-110 max-w-full"
               />
             </div>
             {/* Add to Cart and Buy Now buttons below image */}
-            <div className="flex gap-4 w-80">
+            <div className="flex gap-2 w-100">
               <button
                 onClick={handleAddToCart}
                 className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded text-lg shadow transition"
