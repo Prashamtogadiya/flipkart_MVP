@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "../api/axiosInstance";
 import { useSelector } from "react-redux";
-import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { useNavigate } from "react-router-dom";
+import CartItemCard from "../components/CartItemCard";
+import CartSummarySidebar from "../components/CartSummarySidebar";
+import DeleteDialog from "../components/DeleteDialog";
+import PlaceOrderDialog from "../components/DeleteDialog";
 
 const CartPage = () => {
   // Get the current user from Redux store
@@ -153,205 +156,66 @@ const CartPage = () => {
       0
     );
 
-  return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
+  // Calculate total items
+  const getTotalItems = () =>
+    cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-      {/* Render each cart item as a clickable card */}
-      {cartItems.map(({ product, quantity }) => (
-        <div
-          key={product._id}
-          className="flex gap-4 mb-6 p-4 border rounded shadow-sm bg-white cursor-pointer hover:bg-gray-50 transition"
-          onClick={() => navigate(`/products/${product._id}`, { state: { product } })}
-        >
-          <img
-            src={product.imageUrl[0]}
-            alt={product.name}
-            className="w-15 h-15 object-contain"
-          />
-          <div className="flex flex-col justify-between flex-grow">
-            <div>
-              <h2 className="text-xl font-semibold">{product.name}</h2>
-              <p className="text-gray-600 text-sm">{product.category}</p>
-            </div>
-            {/* Quantity and delete controls */}
-            <div className="flex items-center gap-4 mt-3"
-              // Prevent card click when clicking buttons
-              onClick={e => e.stopPropagation()}
-            >
-              {/* Decrement quantity button */}
+  return (
+    <div className="min-h-screen w-full bg-[#f1f3f6] py-6 px-2 md:px-0">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-6">
+        {/* Cart Items Section */}
+        <div className="flex-1">
+          <div className="bg-white rounded shadow-md border border-[#e0e0e0]">
+            <h1 className="text-xl md:text-2xl font-semibold px-6 py-4 border-b border-[#e0e0e0]">
+              My Cart ({getTotalItems()} items)
+            </h1>
+            {cartItems.map(({ product, quantity }) => (
+              <CartItemCard
+                key={product._id}
+                product={product}
+                quantity={quantity}
+                onQuantityChange={newQty => handleUpdateQuantity(product._id, newQty)}
+                onRemove={() => handleDeleteItem(product._id)}
+                onNavigate={() => navigate(`/products/${product._id}`, { state: { product } })}
+              />
+            ))}
+            {/* Place Order Button (mobile only) */}
+            <div className="md:hidden px-6 py-4">
               <button
-                className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                onClick={() => handleUpdateQuantity(product._id, quantity - 1)}
-                disabled={quantity <= 1}
-                aria-label="Decrease quantity"
+                className="w-full bg-[#fb641b] text-white font-semibold py-3 rounded shadow hover:bg-[#f57224] transition"
+                onClick={handlePlaceOrder}
               >
-                -
+                PLACE ORDER
               </button>
-              {/* Show current quantity */}
-              <span className="font-bold">{quantity}</span>
-              {/* Increment quantity button */}
-              <button
-                className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                onClick={() => handleUpdateQuantity(product._id, quantity + 1)}
-                aria-label="Increase quantity"
-              >
-                +
-              </button>
-              {/* Delete item button */}
-              <button
-                className="ml-4 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                onClick={() => handleDeleteItem(product._id)}
-                aria-label="Delete item"
-              >
-                Delete
-              </button>
-              {/* Show price for this item */}
-              <p className="text-blue-600 font-bold text-lg ml-auto">
-                ${product.price} x {quantity} = $
-                {(product.price * quantity).toFixed(2)}
-              </p>
             </div>
           </div>
         </div>
-      ))}
-
-      {/* Show total price and checkout button */}
-      <div className="text-right mt-6">
-        <p className="text-xl font-bold">Total: ${getTotal().toFixed(2)}</p>
-        <button
-          className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-          onClick={handlePlaceOrder}
-        >
-          Place Order
-        </button>
-        {orderSuccess && (
-          <p className="text-green-600 mt-2 font-semibold">{orderSuccess}</p>
-        )}
-        {orderError && (
-          <p className="text-red-600 mt-2 font-semibold">{orderError}</p>
-        )}
+        {/* Summary Sidebar */}
+        <div className="md:w-96 w-full">
+          <CartSummarySidebar
+            totalItems={getTotalItems()}
+            totalPrice={getTotal()}
+            onPlaceOrder={handlePlaceOrder}
+            orderSuccess={orderSuccess}
+            orderError={orderError}
+          />
+        </div>
       </div>
-
       {/* Delete confirmation dialog */}
-      <AlertDialog.Root open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialog.Overlay className="fixed inset-0 bg-black opacity-30" />
-        <AlertDialog.Content className="fixed top-1/2 left-1/2 max-w-md p-6 bg-white rounded-md shadow-lg -translate-x-1/2 -translate-y-1/2">
-          <AlertDialog.Title className="text-lg font-bold mb-2">
-            Remove Item
-          </AlertDialog.Title>
-          <AlertDialog.Description className="mb-4">
-            Are you sure you want to remove this item from your cart?
-          </AlertDialog.Description>
-          <div className="flex gap-3 justify-end">
-            <AlertDialog.Cancel asChild>
-              <button
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                onClick={() => setDeleteDialogOpen(false)}
-              >
-                Cancel
-              </button>
-            </AlertDialog.Cancel>
-            <AlertDialog.Action asChild>
-              <button
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                onClick={confirmDeleteItem}
-              >
-                Yes, Remove
-              </button>
-            </AlertDialog.Action>
-          </div>
-        </AlertDialog.Content>
-      </AlertDialog.Root>
-
+      <DeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDeleteItem}
+      />
       {/* Place Order Dialog */}
-      <AlertDialog.Root open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-        <AlertDialog.Overlay className="fixed inset-0 bg-black opacity-30" />
-        <AlertDialog.Content className="fixed top-1/2 left-1/2 max-w-md p-6 bg-white rounded-md shadow-lg -translate-x-1/2 -translate-y-1/2">
-          <AlertDialog.Title className="text-lg font-bold mb-2">
-            Enter Shipping Address
-          </AlertDialog.Title>
-          <AlertDialog.Description className="mb-4">
-            Please fill in your shipping details to place the order.
-          </AlertDialog.Description>
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              confirmPlaceOrder();
-            }}
-            className="space-y-2"
-          >
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Full Name"
-              required
-              value={address.fullName}
-              onChange={e => setAddress({ ...address, fullName: e.target.value })}
-            />
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Phone"
-              required
-              value={address.phone}
-              onChange={e => setAddress({ ...address, phone: e.target.value })}
-            />
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Street"
-              required
-              value={address.street}
-              onChange={e => setAddress({ ...address, street: e.target.value })}
-            />
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="City"
-              required
-              value={address.city}
-              onChange={e => setAddress({ ...address, city: e.target.value })}
-            />
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="State"
-              required
-              value={address.state}
-              onChange={e => setAddress({ ...address, state: e.target.value })}
-            />
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Pin Code"
-              required
-              value={address.pinCode}
-              onChange={e => setAddress({ ...address, pinCode: e.target.value })}
-            />
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Country"
-              required
-              value={address.country}
-              onChange={e => setAddress({ ...address, country: e.target.value })}
-            />
-            <div className="flex gap-3 justify-end mt-4">
-              <AlertDialog.Cancel asChild>
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  onClick={() => setOrderDialogOpen(false)}
-                  disabled={orderLoading}
-                >
-                  Cancel
-                </button>
-              </AlertDialog.Cancel>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                disabled={orderLoading}
-              >
-                {orderLoading ? "Placing..." : "Place Order"}
-              </button>
-            </div>
-          </form>
-        </AlertDialog.Content>
-      </AlertDialog.Root>
+      <PlaceOrderDialog
+        open={orderDialogOpen}
+        onOpenChange={setOrderDialogOpen}
+        address={address}
+        setAddress={setAddress}
+        onSubmit={confirmPlaceOrder}
+        loading={orderLoading}
+      />
     </div>
   );
 };
