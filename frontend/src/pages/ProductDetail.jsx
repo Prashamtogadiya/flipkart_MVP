@@ -81,13 +81,13 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="bg-[#f1f3f6] min-h-screen py-8">
-      <div className="max-w-7xl mx-auto bg-white rounded-lg shadow flex flex-col md:flex-row p-6 gap-8">
+    <div className="bg-[#f1f3f6] min-h-screen py-4 md:py-8">
+      <div className="max-w-7xl mx-auto bg-white rounded-lg shadow flex flex-col md:flex-row p-2 md:p-6 gap-4 md:gap-8">
         {/* Left: Product Images & Actions */}
-        <div className="flex flex-row md:w-2/5 w-full items-start">
-          {/* Thumbnails (vertical on left) */}
+        <div className="flex flex-col md:flex-row md:w-2/5 w-full items-center">
+          {/* Thumbnails (vertical on left for md+, horizontal on mobile) */}
           {product.imageUrl?.length > 1 && (
-            <div className="flex flex-col gap-2 mr-4">
+            <div className="flex md:flex-col flex-row gap-2 md:mr-4 mb-2 md:mb-0">
               {product.imageUrl.map((img, idx) => (
                 <img
                   key={idx}
@@ -104,26 +104,26 @@ const ProductDetail = () => {
             </div>
           )}
           {/* Main Image and Actions */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center w-full">
             {/* Main product image */}
-            <div className="bg-white border rounded flex items-center justify-center w-100 h-110 mb-4">
+            <div className="bg-white border-2 border-[#f0f0f0] rounded flex items-center justify-center w-full max-w-xxs h-56 sm:h-72 md:h-110 mb-3">
               <img
                 src={product.imageUrl[selectedImage] || product.imageUrl[0]}
                 alt={product.name}
-                className="object-contain max-h-110 max-w-full"
+                className="object-contain max-h-52 sm:max-h-64 md:max-h-72 max-w-full"
               />
             </div>
             {/* Add to Cart and Buy Now buttons below image */}
-            <div className="flex gap-2 w-100">
+            <div className="flex gap-2 w-full max-w-xxs">
               <button
                 onClick={handleAddToCart}
-                className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded text-lg shadow transition"
+                className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 sm:py-3 rounded text-base sm:text-lg shadow transition"
               >
                 Add to Cart
               </button>
               <button
                 onClick={handleAddToCart}
-                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded text-lg shadow transition"
+                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 sm:py-3 rounded text-base sm:text-lg shadow transition"
               >
                 Buy Now
               </button>
@@ -131,29 +131,29 @@ const ProductDetail = () => {
           </div>
         </div>
         {/* Right: Product Details */}
-        <div className="flex-1">
+        <div className="flex-1 mt-6 md:mt-0">
           {/* Product name */}
-          <h1 className="text-2xl md:text-3xl font-semibold mb-2">{product.name}</h1>
+          <h1 className="text-lg sm:text-xl md:text-3xl font-semibold mb-2 break-words">{product.name}</h1>
           {/* Ratings, reviews, and assurance badge */}
-          <div className="flex items-center gap-4 mb-2">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-2">
             <span className="bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">4.3 ★</span>
-            <span className="text-gray-500 text-sm">1,234 Ratings & 234 Reviews</span>
+            <span className="text-gray-500 text-xs sm:text-sm">1,234 Ratings & 234 Reviews</span>
             <img
               src="https://static-assets-web.flixcart.com/www/linchpin/fk-cp-zion/img/fa_62673a.png"
               alt="Assured"
-              className="h-6"
+              className="h-5 sm:h-6"
             />
           </div>
           {/* Price, discount, and original price */}
-          <div className="flex items-end gap-4 mb-4">
-            <span className="text-3xl font-bold text-[#388e3c]">${product.price}</span>
-            <span className="text-gray-500 line-through text-lg">${(product.price * 1.2).toFixed(2)}</span>
-            <span className="text-green-700 font-semibold text-lg">20% off</span>
+          <div className="flex flex-wrap items-end gap-2 sm:gap-4 mb-4">
+            <span className="text-xl sm:text-2xl md:text-3xl font-bold text-[#388e3c]">${product.price}</span>
+            <span className="text-gray-500 line-through text-base sm:text-lg">${(product.price * 1.2).toFixed(2)}</span>
+            <span className="text-green-700 font-semibold text-base sm:text-lg">20% off</span>
           </div>
           {/* Offers section */}
           <div className="mb-4">
             <span className="font-semibold">Available Offers</span>
-            <ul className="list-disc ml-6 text-sm text-gray-700 mt-1">
+            <ul className="list-disc ml-6 text-xs sm:text-sm text-gray-700 mt-1">
               <li>Bank Offer: 10% off on selected cards</li>
               <li>Special Price: Get extra 5% off (price inclusive)</li>
               <li>Free Delivery</li>
@@ -163,29 +163,29 @@ const ProductDetail = () => {
           {/* Product description */}
           <div className="mb-4">
             <span className="font-semibold">Description:</span>
-            <p className="text-gray-700 mt-1">{product.description}</p>
+            <p className="text-gray-700 mt-1 text-xs sm:text-sm break-words">{product.description}</p>
           </div>
           {/* Category */}
           <div className="mb-4">
             <span className="font-semibold">Category:</span>
-            <span className="ml-2 text-gray-600">{product.category}</span>
+            <span className="ml-2 text-gray-600 text-xs sm:text-sm">{product.category}</span>
           </div>
           {/* Warranty */}
           <div className="mb-4">
             <span className="font-semibold">Warranty:</span>
-            <span className="ml-2 text-gray-600">1 Year Brand Warranty</span>
+            <span className="ml-2 text-gray-600 text-xs sm:text-sm">1 Year Brand Warranty</span>
           </div>
           {/* Delivery info */}
           <div className="mb-4">
             <span className="font-semibold">Delivery:</span>
-            <span className="ml-2 text-gray-600">Free, within 3-5 days</span>
+            <span className="ml-2 text-gray-600 text-xs sm:text-sm">Free, within 3-5 days</span>
           </div>
         </div>
       </div>
       {/* Dialog for confirming add to cart and selecting quantity */}
       <AlertDialog.Root open={openDialog} onOpenChange={setOpenDialog}>
         <AlertDialog.Overlay className="fixed inset-0 bg-black opacity-30" />
-        <AlertDialog.Content className="fixed top-1/2 left-1/2 max-w-md p-6 bg-white rounded-md shadow-lg -translate-x-1/2 -translate-y-1/2">
+        <AlertDialog.Content className="fixed top-1/2 left-1/2 max-w-md w-[90vw] p-4 sm:p-6 bg-white rounded-md shadow-lg -translate-x-1/2 -translate-y-1/2">
           <AlertDialog.Title className="text-lg font-bold mb-2">
             Confirm Add to Cart
           </AlertDialog.Title>
