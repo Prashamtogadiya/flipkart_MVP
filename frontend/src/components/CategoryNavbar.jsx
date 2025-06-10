@@ -40,22 +40,24 @@ const CategoryNavbar = () => {
 
   return (
     <div className="bg-white shadow-sm sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center space-x-22 overflow-x-auto py-3 hide-scrollbar">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4">
+        <div
+          className="flex items-center gap-4 sm:gap-8 md:gap-12 overflow-x-auto py-2 sm:py-3 hide-scrollbar"
+        >
           {categories.map((category, index) => (
             <Link
               key={index}
               to={`/products?category=${encodeURIComponent(category.name)}`}
-              className="flex flex-col items-center min-w-[70px] group"
+              className="flex flex-col items-center min-w-[56px] sm:min-w-[112px] group px-1 sm:px-2"
             >
-              <div className="w-10 h-10 flex items-center justify-center mb-1">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center mb-1">
                 <img
                   src={category.icon}
                   alt={category.name}
                   className="w-6 h-6 object-contain group-hover:scale-110 transition-transform"
                 />
               </div>
-              <span className="text-xs font-medium text-gray-700 group-hover:text-blue-600 transition-colors text-center">
+              <span className="text-[10px] sm:text-xs font-medium text-gray-700 group-hover:text-blue-600 transition-colors text-center truncate max-w-[60px] sm:max-w-[80px]">
                 {category.name}
               </span>
             </Link>
