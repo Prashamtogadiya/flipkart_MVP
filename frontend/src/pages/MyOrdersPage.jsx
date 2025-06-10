@@ -83,57 +83,63 @@ const MyOrdersPage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">My Orders</h1>
-      <div className="space-y-8">
+    <div className="max-w-5xl mx-auto px-2 sm:px-4 py-8 min-h-[80vh]">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-[#212121]">My Orders</h1>
+      <div className="space-y-6">
         {orders.map((order) => (
-          <div key={order._id} className="border rounded-lg p-4 shadow bg-white">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2">
-              <div>
-                <span className="font-semibold">Order ID:</span> {order._id}
+          <div key={order._id} className="border border-[#e0e0e0] rounded bg-white shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center border-b border-[#f0f0f0] bg-[#f7f7f7] px-4 py-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <span className="font-semibold text-xs text-[#878787]">ORDER ID</span>
+                <span className="text-xs text-[#212121]">{order._id}</span>
               </div>
-              <div>
-                <span className="font-semibold">Placed On:</span>{" "}
-                {new Date(order.createdAt).toLocaleString()}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <span className="font-semibold text-xs text-[#878787]">Placed On</span>
+                <span className="text-xs text-[#212121]">{new Date(order.createdAt).toLocaleDateString()}</span>
               </div>
-              <div>
-                <span className="font-semibold">Status:</span>{" "}
-                <span className="capitalize">{order.deliveryStatus}</span>
-              </div>
-            </div>
-            <div className="mb-2">
-              <span className="font-semibold">Shipping Address:</span>
-              <div className="ml-2 text-sm text-gray-700">
-                {order.address.fullName}, {order.address.street}, {order.address.city}, {order.address.state}, {order.address.pinCode}, {order.address.country} <br />
-                Phone: {order.address.phone}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <span className="font-semibold text-xs text-[#878787]">Status</span>
+                <span className="capitalize text-xs font-semibold text-blue-700">{order.deliveryStatus}</span>
               </div>
             </div>
-            <div>
-              <span className="font-semibold">Items:</span>
-              <div className="divide-y">
-                {order.items.map((item, idx) => (
-                  <div key={item.product?._id || idx} className="flex items-center gap-4 py-2">
-                    <img
-                      src={item.product?.imageUrl?.[0]}
-                      alt={item.product?.name}
-                      className="w-14 h-14 object-contain border rounded"
-                    />
-                    <div className="flex-grow">
-                      <div className="font-medium">{item.product?.name}</div>
-                      <div className="text-sm text-gray-500">{item.product?.category}</div>
-                    </div>
-                    <div className="text-sm">
-                      Qty: <span className="font-bold">{item.quantity}</span>
-                    </div>
-                    <div className="text-blue-700 font-bold">
-                      ${item.price}
-                    </div>
-                  </div>
-                ))}
+            <div className="px-4 py-3">
+              <div className="mb-2">
+                <span className="font-semibold text-xs text-[#878787]">Shipping Address:</span>
+                <span className="ml-2 text-xs text-[#212121]">{order.address.fullName}, {order.address.street}, {order.address.city}, {order.address.state}, {order.address.pinCode}, {order.address.country} | Phone: {order.address.phone}</span>
               </div>
-            </div>
-            <div className="text-right mt-2 font-bold text-lg">
-              Total: ${order.totalAmount.toFixed(2)}
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-xs">
+                  <thead>
+                    <tr className="bg-[#f1f3f6] text-[#878787]">
+                      <th className="p-2 font-medium text-left">Product</th>
+                      <th className="p-2 font-medium text-left">Name</th>
+                      <th className="p-2 font-medium text-left">Category</th>
+                      <th className="p-2 font-medium text-left">Qty</th>
+                      <th className="p-2 font-medium text-left">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {order.items.map((item, idx) => (
+                      <tr key={item.product?._id || idx} className="border-b border-[#f0f0f0]">
+                        <td className="p-2">
+                          <img
+                            src={item.product?.imageUrl?.[0]}
+                            alt={item.product?.name}
+                            className="w-14 h-14 object-contain border rounded bg-white"
+                          />
+                        </td>
+                        <td className="p-2 font-medium text-[#212121]">{item.product?.name}</td>
+                        <td className="p-2 text-[#878787]">{item.product?.category}</td>
+                        <td className="p-2">{item.quantity}</td>
+                        <td className="p-2 text-blue-700 font-bold">₹{item.price}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex justify-end mt-3">
+                <span className="font-bold text-base text-[#212121]">Total: ₹{order.totalAmount.toFixed(2)}</span>
+              </div>
             </div>
           </div>
         ))}
@@ -144,11 +150,6 @@ const MyOrdersPage = () => {
           <div className="animate-spin h-8 w-8 border-t-2 border-b-2 border-blue-600 rounded-full"></div>
         </div>
       )}
-      {/* {loading && !orders.length && (
-        <div className="flex justify-center mt-8">
-          <div className="animate-spin h-8 w-8 border-t-2 border-b-2 border-blue-600 rounded-full"></div>
-        </div>
-      )} */}
     </div>
   );
 };

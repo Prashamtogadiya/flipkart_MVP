@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import CartItemCard from "../components/CartItemCard";
 import CartSummarySidebar from "../components/CartSummarySidebar";
 import DeleteDialog from "../components/DeleteDialog";
-import PlaceOrderDialog from "../components/DeleteDialog";
+import PlaceOrderDialog from "../components/PlaceOrderDialog";
 
 const CartPage = () => {
   // Get the current user from Redux store
